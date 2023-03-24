@@ -29,6 +29,39 @@ class FilmorateApplicationTests {
 		filmController = new FilmController();
 		userController = new UserController();
 	}
+
+	@Test
+	void postUserWithIncorrectEmail() {
+		user = User.builder()
+				.email("mail.ru")
+				.name("Username")
+				.login("UserLogin")
+				.birthday(LocalDate.of(1999, 1, 1))
+				.build();
+
+		final ValidationException exception = assertThrows(
+				ValidationException.class,
+				() -> userController.postUser(user)
+		);
+		assertEquals("User email has incorrect format", exception.getMessage());
+	}
+
+	@Test
+	void putUserWithIncorrectEmail() {
+		user = User.builder()
+				.email("mail.ru")
+				.name("Username")
+				.login("UserLogin")
+				.birthday(LocalDate.of(1999, 1, 1))
+				.build();
+
+		final ValidationException exception = assertThrows(
+				ValidationException.class,
+				() -> userController.putUser(user)
+		);
+		assertEquals("User email has incorrect format", exception.getMessage());
+	}
+
 	@Test
 	void postFilmWithIncorrectReleaseDate() {
 		film = Film.builder()

@@ -22,6 +22,7 @@ public class UserController {
     @PostMapping
     public User postUser(@NotNull @Valid @RequestBody User user) {
         log.info("POST request received: {}", user);
+        checkEmail(user);
         if (userEmails.contains(user.getEmail())) {
             log.error("User email already exists");
             throw new ValidationException("User with such email already exists");
@@ -45,6 +46,7 @@ public class UserController {
     @PutMapping
     public User putUser(@NotNull @Valid @RequestBody User user) {
         log.info("PUT request received: {}", user);
+        checkEmail(user);
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             log.error("User name is empty. Setting login {} as user name", user.getLogin());
             user.setName(user.getLogin());
@@ -62,5 +64,12 @@ public class UserController {
     public Collection<User> getUsers() {
         log.info("Текущее количество пользователей {}", users.size());
         return users.values();
+    }
+
+    private void checkEmail(User user) {
+        if (!user.getEmail().contains("@")) {
+            log.error("User email has incorrect format");
+            throw new ValidationException("User email has incorrect format");
+        }
     }
 }
