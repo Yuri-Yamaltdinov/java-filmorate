@@ -51,7 +51,7 @@ public class UserController {
         }
         if (!users.containsKey(user.getId())) {
             log.error("User with id " + user.getId() + "does not exist");
-            throw new ValidationException("User with id " + user.getId() + "does not exist");
+            throw new ValidationException("User with id " + user.getId() + " does not exist");
         }
         users.put(user.getId(), user);
         log.info("User updated: {}", user);

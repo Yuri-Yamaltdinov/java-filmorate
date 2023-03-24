@@ -76,7 +76,7 @@ class FilmorateApplicationTests {
 				ValidationException.class,
 				() -> userController.putUser(user)
 		);
-		assertEquals("Film with id 111 does not exist", exception.getMessage());
+		assertEquals("User with id 111 does not exist", exception.getMessage());
 	}
 
 	@Test
