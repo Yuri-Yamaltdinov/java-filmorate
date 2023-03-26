@@ -63,13 +63,6 @@ public class UserController {
         return users.values();
     }
 
-/*    private void checkEmail(User user) {
-        if (!user.getEmail().contains("@")) {
-            log.error("User email has incorrect format");
-            throw new ValidationException("User email has incorrect format");
-        }
-    }*/
-
     private void checkBirthday(User user) {
         if (user.getBirthday() == null) {
             log.warn("User's birthday does not exist");

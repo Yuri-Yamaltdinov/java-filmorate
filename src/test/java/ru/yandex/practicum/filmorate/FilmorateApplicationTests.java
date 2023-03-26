@@ -27,61 +27,6 @@ class FilmorateApplicationTests {
         userController = new UserController();
     }
 
-/*	@Test
-	void postUserWithIncorrectEmail() {
-		user = User.builder()
-				.email("mail.ru")
-				.name("Username")
-				.login("UserLogin")
-				.birthday(LocalDate.of(1999, 1, 1))
-				.build();
-
-		final ValidationException exception = assertThrows(
-				ValidationException.class,
-				() -> userController.postUser(user)
-		);
-		assertEquals("User email has incorrect format", exception.getMessage());
-	}*/
-
-/*	@Test
-	void putUserWithIncorrectEmail() {
-		user = User.builder()
-				.email("mail@mail.ru")
-				.name("Username")
-				.login("UserLogin")
-				.birthday(LocalDate.of(1999, 1, 1))
-				.build();
-		userController.postUser(user);
-
-		User updatedUser = User.builder()
-				.id(1)
-				.email("mail.ru")
-				.name("Username")
-				.login("UserLogin")
-				.birthday(LocalDate.of(1999, 1, 1))
-				.build();
-
-		final ValidationException exception = assertThrows(
-				ValidationException.class,
-				() -> userController.putUser(updatedUser)
-		);
-		assertEquals("User email has incorrect format", exception.getMessage());
-	}*/
-
-    /*	@Test
-        void postFilmWithoutReleaseDate() {
-            film = Film.builder()
-                    .name("Name")
-                    .description("Description")
-                    .duration(180)
-                    .build();
-
-            final ValidationException exception = assertThrows(
-                    ValidationException.class,
-                    () -> filmController.postFilm(film)
-            );
-            assertEquals("Film release date does not exist", exception.getMessage());
-        }*/
     @Test
     void postFilmWithIncorrectReleaseDate() {
         film = Film.builder()
@@ -134,20 +79,6 @@ class FilmorateApplicationTests {
         assertEquals("User with id 111 does not exist", exception.getMessage());
     }
 
-    /*	@Test
-        void putFilmWithoutReleaseDate() {
-            film = Film.builder()
-                    .name("Name")
-                    .description("Description")
-                    .duration(180)
-                    .build();
-
-            final ValidationException exception = assertThrows(
-                    ValidationException.class,
-                    () -> filmController.putFilm(film)
-            );
-            assertEquals("Film release date does not exist", exception.getMessage());
-        }*/
     @Test
     void putFilmWithIncorrectReleaseDate() {
         film = Film.builder()
