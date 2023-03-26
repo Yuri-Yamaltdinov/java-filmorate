@@ -48,7 +48,7 @@ public class FilmController {
         return films.values();
     }
 
-    private void checkReleaseDate (Film film) {
+    private void checkReleaseDate(Film film) {
         if (film.getReleaseDate() == null) {
             log.warn("Film release date does not exist");
             return;
