@@ -15,7 +15,7 @@ import java.util.*;
 @Slf4j
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
-    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895,12,28);
+    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
     private int id = 0;
 
     @PostMapping
