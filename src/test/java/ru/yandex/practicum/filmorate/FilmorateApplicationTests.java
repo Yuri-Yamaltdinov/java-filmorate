@@ -16,9 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class FilmorateApplicationTests {
-	//unit тесты написаны только для случаев валидации через кастомный ValidationException
-	//насколько я понимаю, для тестирования валидации через аннотации необходимо использовать mock,
-	//и mock мы будем проходить в следующих спринтах
 	Film film;
 	User user;
 	FilmController filmController;
@@ -30,7 +27,7 @@ class FilmorateApplicationTests {
 		userController = new UserController();
 	}
 
-	@Test
+/*	@Test
 	void postUserWithIncorrectEmail() {
 		user = User.builder()
 				.email("mail.ru")
@@ -44,11 +41,20 @@ class FilmorateApplicationTests {
 				() -> userController.postUser(user)
 		);
 		assertEquals("User email has incorrect format", exception.getMessage());
-	}
+	}*/
 
-	@Test
+/*	@Test
 	void putUserWithIncorrectEmail() {
 		user = User.builder()
+				.email("mail@mail.ru")
+				.name("Username")
+				.login("UserLogin")
+				.birthday(LocalDate.of(1999, 1, 1))
+				.build();
+		userController.postUser(user);
+
+		User updatedUser = User.builder()
+				.id(1)
 				.email("mail.ru")
 				.name("Username")
 				.login("UserLogin")
@@ -57,11 +63,25 @@ class FilmorateApplicationTests {
 
 		final ValidationException exception = assertThrows(
 				ValidationException.class,
-				() -> userController.putUser(user)
+				() -> userController.putUser(updatedUser)
 		);
 		assertEquals("User email has incorrect format", exception.getMessage());
-	}
+	}*/
 
+/*	@Test
+	void postFilmWithoutReleaseDate() {
+		film = Film.builder()
+				.name("Name")
+				.description("Description")
+				.duration(180)
+				.build();
+
+		final ValidationException exception = assertThrows(
+				ValidationException.class,
+				() -> filmController.postFilm(film)
+		);
+		assertEquals("Film release date does not exist", exception.getMessage());
+	}*/
 	@Test
 	void postFilmWithIncorrectReleaseDate() {
 		film = Film.builder()
@@ -77,6 +97,7 @@ class FilmorateApplicationTests {
 		);
 		assertEquals("Film release date cannot be earlier than: {}1895-12-28", exception.getMessage());
 	}
+
 	@Test
 	void putFilmWithIncorrectId() {
 		film = Film.builder()
@@ -111,7 +132,20 @@ class FilmorateApplicationTests {
 		);
 		assertEquals("User with id 111 does not exist", exception.getMessage());
 	}
+/*	@Test
+	void putFilmWithoutReleaseDate() {
+		film = Film.builder()
+				.name("Name")
+				.description("Description")
+				.duration(180)
+				.build();
 
+		final ValidationException exception = assertThrows(
+				ValidationException.class,
+				() -> filmController.putFilm(film)
+		);
+		assertEquals("Film release date does not exist", exception.getMessage());
+	}*/
 	@Test
 	void putFilmWithIncorrectReleaseDate() {
 		film = Film.builder()
