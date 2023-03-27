@@ -22,10 +22,7 @@ public class FilmController {
     public Film postFilm(@NotNull @Valid @RequestBody Film film) {
         log.info("POST request received: {}", film);
         checkReleaseDate(film);
-        id++;
-        film.setId(id);
-        films.put(film.getId(), film);
-        log.info("Сохранен фильм {}", film);
+        addFilm(film);
         return film;
     }
 
@@ -33,12 +30,7 @@ public class FilmController {
     public Film putFilm(@NotNull @Valid @RequestBody Film film) {
         log.info("PUT request received: {}", film);
         checkReleaseDate(film);
-        if (!films.containsKey(film.getId())) {
-            log.error("Film with id " + film.getId() + "does not exist");
-            throw new ValidationException("Film with id " + film.getId() + " does not exist");
-        }
-        films.put(film.getId(), film);
-        log.info("Film updated: {}", film);
+        updateFilm(film);
         return film;
     }
 
@@ -49,14 +41,26 @@ public class FilmController {
     }
 
     private void checkReleaseDate(Film film) {
-        if (film.getReleaseDate() == null) {
-            log.warn("Film release date does not exist");
-            return;
-        }
-        if (film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
             log.error("Film release date cannot be earlier than min release date");
             throw new ValidationException("Film release date cannot be earlier than: {}" + MIN_RELEASE_DATE);
         }
+    }
+
+    private void addFilm(Film film) {
+        id++;
+        film.setId(id);
+        films.put(film.getId(), film);
+        log.info("Film saved: {}", film);
+    }
+
+    private void updateFilm(Film film) {
+        if (!films.containsKey(film.getId())) {
+            log.error("Film with id " + film.getId() + "does not exist");
+            throw new ValidationException("Film with id " + film.getId() + " does not exist");
+        }
+        films.put(film.getId(), film);
+        log.info("Film updated: {}", film);
     }
 
 }
