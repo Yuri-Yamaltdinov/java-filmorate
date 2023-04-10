@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
 
@@ -20,11 +22,13 @@ class FilmorateApplicationTests {
     User user;
     FilmController filmController;
     UserController userController;
+    private FilmService filmService;
+    private UserService userService;
 
     @BeforeEach
     public void beforeEach() {
-        filmController = new FilmController();
-        userController = new UserController();
+        filmController = new FilmController(filmService);
+        userController = new UserController(userService);
     }
 
     @Test

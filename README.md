@@ -1,2 +1,3 @@
 # java-filmorate
-Yuri's repository for Filmorate project.
+Filmorate project - backend service that works with movies and user ratings, 
+as well as return the top movies recommended for viewing.
