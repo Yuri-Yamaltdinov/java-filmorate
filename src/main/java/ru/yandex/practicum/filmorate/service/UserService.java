@@ -40,8 +40,12 @@ public class UserService {
         return userStorage.getUsers().values();
     }
 
+    public User getUser(Integer id) {
+        return userStorage.getUser(id);
+    }
+
     //добавление в друзья, удаление из друзей, вывод списка общих друзей.
-    public void addToFriends(Integer userId, Integer friendId) {
+    public User addToFriends(Integer userId, Integer friendId) {
         User user = userStorage.getUser(userId);
         User friend = userStorage.getUser(friendId);
         if (user.getFriends().isEmpty() || (user.getFriends() == null)) {
@@ -60,9 +64,10 @@ public class UserService {
 
         userStorage.updateUser(user);
         userStorage.updateUser(friend);
+        return user;
     }
 
-    public void removeFromFriends(Integer userId, Integer friendId) {
+    public User removeFromFriends(Integer userId, Integer friendId) {
         User user = userStorage.getUser(userId);
         User friend = userStorage.getUser(friendId);
         if (user.getFriends().isEmpty() || (user.getFriends() == null)) {
@@ -81,6 +86,21 @@ public class UserService {
         }
         userStorage.updateUser(user);
         userStorage.updateUser(friend);
+        return user;
+    }
+
+    public Collection<User> getFriends(Integer userId) {
+        User user = userStorage.getUser(userId);
+        if (user.getFriends().isEmpty() || (user.getFriends() == null)) {
+            log.error("User friends list is empty.");
+            return null;
+        }
+        Set<Integer> userFriendsId = user.getFriends();
+        Collection<User> friendsList = new ArrayList<>();
+        for (Integer id : userFriendsId) {
+            friendsList.add(userStorage.getUser(id));
+        }
+        return friendsList;
     }
 
     public Collection<User> getCommonFriends(Integer userId, Integer friendId) {

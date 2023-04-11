@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -28,7 +29,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void updateFilm(Film film) {
         if (!films.containsKey(film.getId())) {
             log.error("Film with id " + film.getId() + "does not exist");
-            throw new ValidationException("Film with id " + film.getId() + " does not exist");
+            throw new FilmNotFoundException("Film with id " + film.getId() + " does not exist");
         }
         films.put(film.getId(), film);
         log.info("Film updated: {}", film);
@@ -38,7 +39,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void deleteFilm(Film film) {
         if (!films.containsKey(film.getId())) {
             log.error("Film with id " + film.getId() + "does not exist");
-            throw new ValidationException("Film with id " + film.getId() + " does not exist");
+            throw new FilmNotFoundException("Film with id " + film.getId() + " does not exist");
         }
         films.remove(film.getId());
         log.info("Film removed: {}", film);
@@ -62,8 +63,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film getFilm(Integer id) {
         if (!films.containsKey(id)) {
             log.error("Film with id " + id + "does not exist");
-            throw new ValidationException("Film with id " + id + " does not exist");
+            throw new FilmNotFoundException("Film with id " + id + " does not exist");
         }
         return films.get(id);
+
     }
 }

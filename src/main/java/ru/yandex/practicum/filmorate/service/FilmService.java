@@ -36,8 +36,12 @@ public class FilmService {
         return filmStorage.getFilms().values();
     }
 
+    public Film getFilm(Integer id) {
+        return filmStorage.getFilm(id);
+    }
+
     //добавление и удаление лайка, вывод 10 наиболее популярных фильмов по количеству лайков.
-    public void addLike(Integer filmId, Integer userId) {
+    public Film addLike(Integer filmId, Integer userId) {
         Film film = filmStorage.getFilm(filmId);
         if (!film.getLikes().isEmpty() || (!(film.getLikes() == null))) {
             film.setLikes(Set.of(userId));
@@ -46,9 +50,10 @@ public class FilmService {
         filmLikes.add(userId);
         film.setLikes(filmLikes);
         filmStorage.updateFilm(film);
+        return film;
     }
 
-    public void removeLike(Integer filmId, Integer userId) {
+    public Film removeLike(Integer filmId, Integer userId) {
         Film film = filmStorage.getFilm(filmId);
         if (!film.getLikes().isEmpty() || (!(film.getLikes() == null))) {
             log.error("Likes list is empty. Nothing to remove.");
@@ -58,9 +63,10 @@ public class FilmService {
         filmLikes.remove(userId);
         film.setLikes(filmLikes);
         filmStorage.updateFilm(film);
+        return film;
     }
 
-    public Collection<Film> getTop10(Integer count) {
+    public Collection<Film> getTopFilms(Integer count) {
         Collection<Film> filmsList = filmStorage.getFilms().values();
         return filmsList.stream()
                 .sorted(Comparator.comparingInt(f0 -> f0.getLikes().size()))

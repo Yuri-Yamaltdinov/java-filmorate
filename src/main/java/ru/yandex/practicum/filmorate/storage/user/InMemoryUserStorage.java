@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -31,7 +32,7 @@ public class InMemoryUserStorage implements UserStorage {
     public void updateUser(User user) {
         if (!users.containsKey(user.getId())) {
             log.error("User with id " + user.getId() + "does not exist");
-            throw new ValidationException("User with id " + user.getId() + " does not exist");
+            throw new UserNotFoundException("User with id " + user.getId() + " does not exist");
         }
         users.put(user.getId(), user);
         log.info("User updated: {}", user);
@@ -41,7 +42,7 @@ public class InMemoryUserStorage implements UserStorage {
     public void deleteUser(User user) {
         if (!users.containsKey(user.getId())) {
             log.error("User with id " + user.getId() + "does not exist");
-            throw new ValidationException("User with id " + user.getId() + " does not exist");
+            throw new UserNotFoundException("User with id " + user.getId() + " does not exist");
         }
         users.remove(user.getId());
         log.info("User removed: {}", user);
@@ -81,7 +82,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User getUser(Integer id) {
         if (!users.containsKey(id)) {
             log.error("User with id " + id + "does not exist");
-            throw new ValidationException("User with id " + id + " does not exist");
+            throw new UserNotFoundException("User with id " + id + " does not exist");
         }
         return users.get(id);
     }

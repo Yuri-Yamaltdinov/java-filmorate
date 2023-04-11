@@ -35,9 +35,32 @@ public class FilmController {
         return film;
     }
 
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
+        log.info("PUT request received: /{}/like/{}", id, userId);
+        return filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
+        log.info("DELETE request received: /{}/like/{}", id, userId);
+        return filmService.removeLike(id, userId);
+    }
+
     @GetMapping
     public Collection<Film> getFilms() {
         return filmService.getFilms();
     }
 
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable Integer id) {
+        log.info("GET request received: /{}", id);
+        return filmService.getFilm(id);
+    }
+
+    @GetMapping("/popular?count={count}")
+    public Collection<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
+        log.info("GET request received: /popular?count={}", count);
+        return filmService.getTopFilms(count);
+    }
 }
