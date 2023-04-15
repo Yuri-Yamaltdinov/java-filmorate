@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,9 @@ public class UserService {
     }
 
     public void updateUser(User user) {
+        if (user.getId() == null) {
+            throw new ValidationException("User id does not exist");
+        }
         userStorage.checkBirthday(user);
         userStorage.checkName(user);
         userStorage.updateUser(user);
@@ -45,58 +49,17 @@ public class UserService {
     }
 
     //добавление в друзья, удаление из друзей, вывод списка общих друзей.
-    public User addToFriends(Integer userId, Integer friendId) {
-        User user = userStorage.getUser(userId);
-        User friend = userStorage.getUser(friendId);
-        if (user.getFriends().isEmpty() || (user.getFriends() == null)) {
-            user.setFriends(Set.of(friendId));
-        }
-        Set<Integer> userFriends = user.getFriends();
-        userFriends.add(friendId);
-        user.setFriends(userFriends);
-
-        if (friend.getFriends().isEmpty() || (friend.getFriends() == null)) {
-            friend.setFriends(Set.of(userId));
-        }
-        Set<Integer> friendFriends = friend.getFriends();
-        friendFriends.add(userId);
-        friend.setFriends(friendFriends);
-
-        userStorage.updateUser(user);
-        userStorage.updateUser(friend);
-        return user;
+    public User addFriends(Integer userId, Integer friendId) {
+        return userStorage.addFriends(userId, friendId);
     }
 
     public User removeFromFriends(Integer userId, Integer friendId) {
-        User user = userStorage.getUser(userId);
-        User friend = userStorage.getUser(friendId);
-        if (user.getFriends().isEmpty() || (user.getFriends() == null)) {
-            log.error("User friends list is empty.");
-            throw new ValidationException("User friends list is empty.");
-        }
-        Set<Integer> userFriends = user.getFriends();
-        userFriends.remove(friendId);
-        user.setFriends(userFriends);
-        if (friend.getFriends().isEmpty() || (friend.getFriends() == null)) {
-            log.error("Friend friends list is empty. Nothing to remove");
-        } else {
-            Set<Integer> friendFriends = friend.getFriends();
-            friendFriends.remove(userId);
-            friend.setFriends(friendFriends);
-        }
-        userStorage.updateUser(user);
-        userStorage.updateUser(friend);
-        return user;
+        return userStorage.removeFromFriends(userId, friendId);
     }
 
     public Collection<User> getFriends(Integer userId) {
-        User user = userStorage.getUser(userId);
-        if (user.getFriends().isEmpty() || (user.getFriends() == null)) {
-            log.error("User friends list is empty.");
-            return null;
-        }
-        Set<Integer> userFriendsId = user.getFriends();
-        Collection<User> friendsList = new ArrayList<>();
+        Set<Integer> userFriendsId = userStorage.getFriendsList(userId);
+        Collection<User> friendsList = new ArrayList<>(Collections.emptyList());
         for (Integer id : userFriendsId) {
             friendsList.add(userStorage.getUser(id));
         }
@@ -104,20 +67,12 @@ public class UserService {
     }
 
     public Collection<User> getCommonFriends(Integer userId, Integer friendId) {
-        User user = userStorage.getUser(userId);
-        if (user.getFriends().isEmpty() || (user.getFriends() == null)) {
-            log.error("User friends list is empty.");
-            return null;
-        }
-        User friend = userStorage.getUser(friendId);
-        if (!user.getFriends().isEmpty() || (user.getFriends() == null)) {
-            log.error("User friends list is empty.");
-            return null;
-        }
-        Set<Integer> userFriends = user.getFriends();
-        Set<Integer> friendFriends = friend.getFriends();
-        Set<Integer> commonFriendsIdList = userFriends.stream().filter(friendFriends::contains).collect(Collectors.toSet());
-        Collection<User> commonFriendsList = new ArrayList<>();
+        Set<Integer> userFriends = userStorage.getFriendsList(userId);
+        Set<Integer> friendFriends = userStorage.getFriendsList(friendId);
+        Set<Integer> commonFriendsIdList = userFriends.stream()
+                .filter(friendFriends::contains)
+                .collect(Collectors.toSet());
+        Collection<User> commonFriendsList = new ArrayList<>(Collections.emptyList());
         for (Integer commonFriendId : commonFriendsIdList) {
             commonFriendsList.add(userStorage.getUser(commonFriendId));
         }

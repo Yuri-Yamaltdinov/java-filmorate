@@ -24,4 +24,10 @@ public interface UserStorage {
 
     Set<String> getUserEmails();
 
+    User addFriends(Integer userId, Integer friendId);
+
+    User removeFromFriends(Integer userId, Integer friendId);
+
+    Set<Integer> getFriendsList(Integer userId);
+
 }

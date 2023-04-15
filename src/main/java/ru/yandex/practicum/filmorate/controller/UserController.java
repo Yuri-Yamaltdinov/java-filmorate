@@ -38,7 +38,7 @@ public class UserController {
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
         log.info("PUT request received: userId {}, friend Id {}", id, friendId);
-        return userService.addToFriends(id, friendId);
+        return userService.addFriends(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -68,7 +68,7 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public Collection<User> getCommonFriends(@PathVariable("id") Integer id, @PathVariable("otherId") Integer friendId) {
         log.info("GET request received: /{}/friends/common/{}", id, friendId);
-        return  userService.getCommonFriends(id, friendId);
+        return userService.getCommonFriends(id, friendId);
     }
 
 }

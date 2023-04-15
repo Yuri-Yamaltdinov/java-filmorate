@@ -7,8 +7,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -66,6 +66,36 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new FilmNotFoundException("Film with id " + id + " does not exist");
         }
         return films.get(id);
+    }
 
+    @Override
+    public Film addLike(Integer filmId, Integer userId) {
+        getFilm(filmId).addLike(userId);
+        log.info("Film updated: {}", getFilm(filmId));
+        return getFilm(filmId);
+    }
+
+    @Override
+    public Film removeLike(Integer filmId, Integer userId) {
+        getFilm(filmId).removeLike(userId);
+        log.info("Film updated: {}", getFilm(filmId));
+        return getFilm(filmId);
+    }
+
+    @Override
+    public Collection<Film> getTopFilms(Integer count) {
+        Collection<Film> filmsCollection = films.values();
+        if (count > filmsCollection.size()) {
+            count = filmsCollection.size();
+        }
+        for (Film film : filmsCollection) {
+            if (film.getLikes() == null) {
+                film.setLikes(new HashSet<>());
+            }
+        }
+        return filmsCollection.stream()
+                .sorted(Comparator.comparingInt(o -> o.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }

@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -91,6 +88,36 @@ public class InMemoryUserStorage implements UserStorage {
     public Set<String> getUserEmails() {
         log.info("Current number of users emails: {}", userEmails.size());
         return userEmails;
+    }
+
+    @Override
+    public User addFriends(Integer userId, Integer friendId) {
+        User user = getUser(userId);
+        User friend = getUser(friendId);
+        user.addFriend(friendId);
+        friend.addFriend(userId);
+        users.put(user.getId(), user);
+        log.info("User updated: {}", user);
+        users.put(friend.getId(), friend);
+        log.info("Friend updated: {}", friend);
+        return user;
+    }
+
+    @Override
+    public User removeFromFriends(Integer userId, Integer friendId) {
+        getUser(userId).removeFriend(friendId);
+        getUser(friendId).removeFriend(userId);
+        return getUser(userId);
+    }
+
+    @Override
+    public Set<Integer> getFriendsList(Integer userId) {
+        User user = getUser(userId);
+        if ((user.getFriends() == null) || (user.getFriends().isEmpty())) {
+            log.error("User friends list is empty.");
+            return Collections.emptySet();
+        }
+        return user.getFriends();
     }
 
 }
