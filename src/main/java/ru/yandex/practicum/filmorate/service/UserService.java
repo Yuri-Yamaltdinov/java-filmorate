@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,9 +26,9 @@ public class UserService {
     }
 
     public void addUser(User user) {
-        userStorage.checkEmail(user);
-        userStorage.checkBirthday(user);
-        userStorage.checkName(user);
+        checkEmail(user);
+        checkBirthday(user);
+        checkName(user);
         userStorage.addUser(user);
     }
 
@@ -35,8 +36,8 @@ public class UserService {
         if (user.getId() == null) {
             throw new ValidationException("User id does not exist");
         }
-        userStorage.checkBirthday(user);
-        userStorage.checkName(user);
+        checkBirthday(user);
+        checkName(user);
         userStorage.updateUser(user);
     }
 
@@ -77,5 +78,26 @@ public class UserService {
             commonFriendsList.add(userStorage.getUser(commonFriendId));
         }
         return commonFriendsList;
+    }
+
+    private void checkEmail(User user) {
+        if (userStorage.getUserEmails().contains(user.getEmail())) {
+            log.error("User email already exists");
+            throw new ValidationException("User with such email already exists");
+        }
+    }
+
+    private void checkBirthday(User user) {
+        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
+            log.error("Birthday date is in the future");
+            throw new ValidationException("User's birthday is in the future: " + user.getBirthday());
+        }
+    }
+
+    private void checkName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.error("User name is empty. Setting login {} as user name", user.getLogin());
+            user.setName(user.getLogin());
+        }
     }
 }

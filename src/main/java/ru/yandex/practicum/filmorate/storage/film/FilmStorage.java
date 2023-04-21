@@ -12,8 +12,6 @@ public interface FilmStorage {
 
     void deleteFilm(Film film);
 
-    void checkReleaseDate(Film film);
-
     Map<Integer, Film> getFilms();
 
     Film getFilm(Integer id);

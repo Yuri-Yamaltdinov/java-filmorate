@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
-    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
     private int id = 0;
 
     @Override
@@ -43,14 +42,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         films.remove(film.getId());
         log.info("Film removed: {}", film);
-    }
-
-    @Override
-    public void checkReleaseDate(Film film) {
-        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
-            log.error("Film release date cannot be earlier than min release date");
-            throw new ValidationException("Film release date cannot be earlier than: {}" + MIN_RELEASE_DATE);
-        }
     }
 
     @Override

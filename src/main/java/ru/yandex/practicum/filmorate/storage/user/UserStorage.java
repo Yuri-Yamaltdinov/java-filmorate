@@ -12,12 +12,6 @@ public interface UserStorage {
 
     void deleteUser(User user);
 
-    void checkBirthday(User user);
-
-    void checkEmail(User user);
-
-    void checkName(User user);
-
     Map<Integer, User> getUsers();
 
     User getUser(Integer id);
