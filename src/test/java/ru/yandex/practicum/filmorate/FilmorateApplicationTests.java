@@ -12,10 +12,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.Storage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -33,8 +32,8 @@ class FilmorateApplicationTests {
     UserController userController;
     private FilmService filmService;
     private UserService userService;
-    private FilmStorage filmStorage;
-    private UserStorage userStorage;
+    private Storage<Film> filmStorage;
+    private Storage<User> userStorage;
 
     @BeforeEach
     public void beforeEach() {
@@ -163,22 +162,6 @@ class FilmorateApplicationTests {
     }
 
     @Test
-    void postUserWithIncorrectBirthday() {
-        user = User.builder()
-                .email("user@mail.ru")
-                .name("Username")
-                .login("UserLogin")
-                .birthday(LocalDate.of(2111, 1, 1))
-                .build();
-
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> userController.postUser(user)
-        );
-        assertEquals("User's birthday is in the future: 2111-01-01", exception.getMessage());
-    }
-
-    @Test
     void getUserFriendsCommonEmpty() {
         user = User.builder()
                 .email("user@mail.ru")
@@ -200,7 +183,7 @@ class FilmorateApplicationTests {
         assertEquals(addedFriend, userController.getUserById(addedFriend.getId()));
 
         Collection<User> commonFriends = userController.getCommonFriends(addedUser.getId(), addedFriend.getId());
-        assertEquals(Collections.emptyList(), commonFriends);
+        assertEquals(Collections.emptySet(), commonFriends);
     }
 
     @Test
@@ -225,8 +208,8 @@ class FilmorateApplicationTests {
         assertEquals(addedFriend, userController.getUserById(addedFriend.getId()));
 
         userController.addFriend(1, 2);
-        addedUser = userStorage.getUser(1);
-        addedFriend = userStorage.getUser(2);
+        addedUser = userStorage.getOne(1);
+        addedFriend = userStorage.getOne(2);
         Set<Integer> userFriends = addedUser.getFriends();
         Set<Integer> friendFriends = addedFriend.getFriends();
         assertEquals(Set.of(2), userFriends);

@@ -3,21 +3,20 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.Storage;
 
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Slf4j
-public class InMemoryFilmStorage implements FilmStorage {
+public class InMemoryFilmStorage implements Storage<Film> {
     private final Map<Integer, Film> films = new HashMap<>();
     private int id = 0;
 
     @Override
-    public void addFilm(Film film) {
+    public void addOne(Film film) {
         id++;
         film.setId(id);
         films.put(film.getId(), film);
@@ -25,7 +24,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void updateFilm(Film film) {
+    public void updateOne(Film film) {
         if (!films.containsKey(film.getId())) {
             log.error("Film with id " + film.getId() + "does not exist");
             throw new FilmNotFoundException("Film with id " + film.getId() + " does not exist");
@@ -35,7 +34,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilm(Film film) {
+    public void deleteOne(Film film) {
         if (!films.containsKey(film.getId())) {
             log.error("Film with id " + film.getId() + "does not exist");
             throw new FilmNotFoundException("Film with id " + film.getId() + " does not exist");
@@ -45,48 +44,17 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Integer, Film> getFilms() {
+    public Map<Integer, Film> getAll() {
         log.info("Currently {} films saved", films.size());
         return films;
     }
 
     @Override
-    public Film getFilm(Integer id) {
+    public Film getOne(Integer id) {
         if (!films.containsKey(id)) {
             log.error("Film with id " + id + "does not exist");
             throw new FilmNotFoundException("Film with id " + id + " does not exist");
         }
         return films.get(id);
-    }
-
-    @Override
-    public Film addLike(Integer filmId, Integer userId) {
-        getFilm(filmId).addLike(userId);
-        log.info("Film updated: {}", getFilm(filmId));
-        return getFilm(filmId);
-    }
-
-    @Override
-    public Film removeLike(Integer filmId, Integer userId) {
-        getFilm(filmId).removeLike(userId);
-        log.info("Film updated: {}", getFilm(filmId));
-        return getFilm(filmId);
-    }
-
-    @Override
-    public Collection<Film> getTopFilms(Integer count) {
-        Collection<Film> filmsCollection = films.values();
-        if (count > filmsCollection.size()) {
-            count = filmsCollection.size();
-        }
-        for (Film film : filmsCollection) {
-            if (film.getLikes() == null) {
-                film.setLikes(new HashSet<>());
-            }
-        }
-        return filmsCollection.stream()
-                .sorted((o1,o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
     }
 }

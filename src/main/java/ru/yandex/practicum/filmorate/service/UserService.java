@@ -5,93 +5,104 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.Storage;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class UserService {
-
-    private final UserStorage userStorage;
+    private final Storage<User> userStorage;
+    private final Set<String> userEmails = new HashSet<>();
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(Storage<User> userStorage) {
         this.userStorage = userStorage;
     }
 
     public void addUser(User user) {
-        checkEmail(user);
-        checkBirthday(user);
+        if (!(userEmails.add(user.getEmail()))) {
+            log.error("User email already exists");
+            throw new ValidationException("User with such email already exists");
+        }
         checkName(user);
-        userStorage.addUser(user);
+        userStorage.addOne(user);
     }
 
     public void updateUser(User user) {
         if (user.getId() == null) {
             throw new ValidationException("User id does not exist");
         }
-        checkBirthday(user);
         checkName(user);
-        userStorage.updateUser(user);
+        userStorage.updateOne(user);
     }
 
     public Collection<User> getUsers() {
-        return userStorage.getUsers().values();
+        return userStorage.getAll().values();
     }
 
     public User getUser(Integer id) {
-        return userStorage.getUser(id);
+        return userStorage.getOne(id);
     }
 
-    //добавление в друзья, удаление из друзей, вывод списка общих друзей.
     public User addFriends(Integer userId, Integer friendId) {
-        return userStorage.addFriends(userId, friendId);
+        User user = getUser(userId);
+        User friend = getUser(friendId);
+        user.addFriend(friendId);
+        friend.addFriend(userId);
+        updateUser(user);
+        log.info("User updated: {}", user);
+        updateUser(friend);
+        log.info("Friend updated: {}", friend);
+        return user;
     }
 
     public User removeFromFriends(Integer userId, Integer friendId) {
-        return userStorage.removeFromFriends(userId, friendId);
+        User user = getUser(userId);
+        User friend = getUser(friendId);
+        user.removeFriend(friendId);
+        friend.removeFriend(userId);
+        updateUser(user);
+        updateUser(friend);
+        return user;
     }
 
     public Collection<User> getFriends(Integer userId) {
-        Set<Integer> userFriendsId = userStorage.getFriendsList(userId);
+        User user = getUser(userId);
+        if ((user.getFriends() == null) || (user.getFriends().isEmpty())) {
+            log.error("User friends list is empty.");
+            return Collections.emptySet();
+        }
+        Set<Integer> userFriendsId = user.getFriends();
         Collection<User> friendsList = new ArrayList<>(Collections.emptyList());
         for (Integer id : userFriendsId) {
-            friendsList.add(userStorage.getUser(id));
+            friendsList.add(userStorage.getOne(id));
         }
         return friendsList;
     }
 
     public Collection<User> getCommonFriends(Integer userId, Integer friendId) {
-        Set<Integer> userFriends = userStorage.getFriendsList(userId);
-        Set<Integer> friendFriends = userStorage.getFriendsList(friendId);
+        User user = getUser(userId);
+        if ((user.getFriends() == null) || (user.getFriends().isEmpty())) {
+            log.error("User friends list is empty.");
+            return Collections.emptySet();
+        }
+        Set<Integer> userFriends = user.getFriends();
+        User friend = getUser(friendId);
+        if ((friend.getFriends() == null) || (friend.getFriends().isEmpty())) {
+            log.error("User friends list is empty.");
+            return Collections.emptySet();
+        }
+        Set<Integer> friendFriends = friend.getFriends();
         Set<Integer> commonFriendsIdList = userFriends.stream()
                 .filter(friendFriends::contains)
                 .collect(Collectors.toSet());
         Collection<User> commonFriendsList = new ArrayList<>(Collections.emptyList());
         for (Integer commonFriendId : commonFriendsIdList) {
-            commonFriendsList.add(userStorage.getUser(commonFriendId));
+            commonFriendsList.add(userStorage.getOne(commonFriendId));
         }
         return commonFriendsList;
-    }
-
-    private void checkEmail(User user) {
-        if (userStorage.getUserEmails().contains(user.getEmail())) {
-            log.error("User email already exists");
-            throw new ValidationException("User with such email already exists");
-        }
-    }
-
-    private void checkBirthday(User user) {
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Birthday date is in the future");
-            throw new ValidationException("User's birthday is in the future: " + user.getBirthday());
-        }
     }
 
     private void checkName(User user) {
