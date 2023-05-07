@@ -1,83 +1,74 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private final Set<String> userEmails = new HashSet<>();
-    private int id = 0;
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
     public User postUser(@NotNull @Valid @RequestBody User user) {
         log.info("POST request received: {}", user);
-        checkEmail(user);
-        checkBirthday(user);
-        checkName(user);
-        addUser(user);
+        userService.addUser(user);
         return user;
     }
 
     @PutMapping
     public User putUser(@NotNull @Valid @RequestBody User user) {
         log.info("PUT request received: {}", user);
-        checkBirthday(user);
-        checkName(user);
-        updateUser(user);
+        userService.updateUser(user);
         return user;
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+        log.info("PUT request received: userId {}, friend Id {}", id, friendId);
+        return userService.addFriends(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+        log.info("DELETE request received: userId {}, friend Id {}", id, friendId);
+        return userService.removeFromFriends(id, friendId);
     }
 
     @GetMapping
     public Collection<User> getUsers() {
-        log.info("Current number of users: {}", users.size());
-        return users.values();
+        log.info("GET request received");
+        return userService.getUsers();
     }
 
-    private void checkEmail(User user) {
-        if (userEmails.contains(user.getEmail())) {
-            log.error("User email already exists");
-            throw new ValidationException("User with such email already exists");
-        }
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Integer id) {
+        log.info("GET request received: getUserById {}", id);
+        return userService.getUser(id);
     }
 
-    private void checkBirthday(User user) {
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Birthday date is in the future");
-            throw new ValidationException("User's birthday is in the future: " + user.getBirthday());
-        }
+    @GetMapping("/{id}/friends")
+    public Collection<User> getFriends(@PathVariable Integer id) {
+        log.info("GET request received: {}/friends", id);
+        return userService.getFriends(id);
     }
 
-    private void checkName(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.error("User name is empty. Setting login {} as user name", user.getLogin());
-            user.setName(user.getLogin());
-        }
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriends(@PathVariable("id") Integer id, @PathVariable("otherId") Integer friendId) {
+        log.info("GET request received: /{}/friends/common/{}", id, friendId);
+        return userService.getCommonFriends(id, friendId);
     }
 
-    private void addUser(User user) {
-        id++;
-        user.setId(id);
-        users.put(user.getId(), user);
-        userEmails.add(user.getEmail());
-        log.info("User added: {}", user);
-    }
-
-    private void updateUser(User user) {
-        if (!users.containsKey(user.getId())) {
-            log.error("User with id " + user.getId() + "does not exist");
-            throw new ValidationException("User with id " + user.getId() + " does not exist");
-        }
-        users.put(user.getId(), user);
-        log.info("User updated: {}", user);
-    }
 }

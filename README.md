@@ -1,5 +1,7 @@
 # java-filmorate
-Repository of Yandex Practicum project "Filmorate".
+Filmorate project - backend service that works with movies and user ratings, 
+as well as return the top movies recommended for viewing.
+
 ## База данных
 В проекте используется реляционная база данных PostgreSQL. Структура базы данных отображена на [ER-диаграмме](https://dbdiagram.io/d/644834716b3194705130348e).
 ![image](src/main/resources/ER-Diagram_v1.png)
