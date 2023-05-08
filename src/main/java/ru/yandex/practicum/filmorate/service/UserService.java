@@ -3,9 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class UserService {
+
     private final UserStorage userStorage;
     private final Set<String> userEmails = new HashSet<>();
 
@@ -22,12 +23,8 @@ public class UserService {
     }
 
     public void addUser(User user) {
-        if (!(userEmails.add(user.getEmail()))) {
-            log.error("User email already exists");
-            throw new ValidationException("User with such email already exists");
-        }
         checkName(user);
-        userStorage.addOne(user);
+        userStorage.create(user);
     }
 
     public void updateUser(User user) {
@@ -35,20 +32,23 @@ public class UserService {
             throw new ValidationException("User id does not exist");
         }
         checkName(user);
-        userStorage.updateOne(user);
+        userStorage.update(user);
     }
 
-    public Collection<User> getUsers() {
-        return userStorage.getAll().values();
+    public Collection<User> findAll() {
+        return userStorage.findAll();
     }
 
-    public User getUser(Integer id) {
-        return userStorage.getOne(id);
+    public User findById(Integer id) {
+        return userStorage.findById(id);
     }
 
-    public User addFriends(Integer userId, Integer friendId) {
-        User user = getUser(userId);
-        User friend = getUser(friendId);
+    public User addFriend(Integer userId, Integer friendId) {
+        if (userId == friendId) {
+            throw new ValidationException("Friend id is equal to user id");
+        }
+        User user = findById(userId);
+        User friend = findById(friendId);
         user.addFriend(friendId);
         friend.addFriend(userId);
         updateUser(user);
@@ -59,8 +59,8 @@ public class UserService {
     }
 
     public User removeFromFriends(Integer userId, Integer friendId) {
-        User user = getUser(userId);
-        User friend = getUser(friendId);
+        User user = findById(userId);
+        User friend = findById(friendId);
         user.removeFriend(friendId);
         friend.removeFriend(userId);
         updateUser(user);
@@ -69,7 +69,7 @@ public class UserService {
     }
 
     public Collection<User> getFriends(Integer userId) {
-        User user = getUser(userId);
+        User user = findById(userId);
         if ((user.getFriends() == null) || (user.getFriends().isEmpty())) {
             log.error("User friends list is empty.");
             return Collections.emptySet();
@@ -77,19 +77,19 @@ public class UserService {
         Set<Integer> userFriendsId = user.getFriends();
         Collection<User> friendsList = new ArrayList<>(Collections.emptyList());
         for (Integer id : userFriendsId) {
-            friendsList.add(userStorage.getOne(id));
+            friendsList.add(userStorage.findById(id));
         }
         return friendsList;
     }
 
     public Collection<User> getCommonFriends(Integer userId, Integer friendId) {
-        User user = getUser(userId);
+        User user = findById(userId);
         if ((user.getFriends() == null) || (user.getFriends().isEmpty())) {
             log.error("User friends list is empty.");
             return Collections.emptySet();
         }
         Set<Integer> userFriends = user.getFriends();
-        User friend = getUser(friendId);
+        User friend = findById(friendId);
         if ((friend.getFriends() == null) || (friend.getFriends().isEmpty())) {
             log.error("User friends list is empty.");
             return Collections.emptySet();
@@ -100,7 +100,7 @@ public class UserService {
                 .collect(Collectors.toSet());
         Collection<User> commonFriendsList = new ArrayList<>(Collections.emptyList());
         for (Integer commonFriendId : commonFriendsIdList) {
-            commonFriendsList.add(userStorage.getOne(commonFriendId));
+            commonFriendsList.add(userStorage.findById(commonFriendId));
         }
         return commonFriendsList;
     }

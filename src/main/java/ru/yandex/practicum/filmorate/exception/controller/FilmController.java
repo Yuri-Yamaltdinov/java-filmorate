@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.exception.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,24 @@ public class FilmController {
     @Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
+    }
+
+    @GetMapping
+    public Collection<Film> getFilms() {
+        log.info("GET request received.");
+        return filmService.getFilms();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable Integer id) {
+        log.info("GET request received: /{}", id);
+        return filmService.getFilm(id);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getTopFilms(@RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
+        log.info("GET request received: /popular?count={}", count);
+        return filmService.getTopFilms(count);
     }
 
     @PostMapping
@@ -45,23 +63,6 @@ public class FilmController {
     public Film deleteLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
         log.info("DELETE request received: /{}/like/{}", id, userId);
         return filmService.removeLike(id, userId);
-    }
-
-    @GetMapping
-    public Collection<Film> getFilms() {
-        return filmService.getFilms();
-    }
-
-    @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable Integer id) {
-        log.info("GET request received: /{}", id);
-        return filmService.getFilm(id);
-    }
-
-    @GetMapping("/popular")
-    public Collection<Film> getTopFilms(@RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
-        log.info("GET request received: /popular?count={}", count);
-        return filmService.getTopFilms(count);
     }
 
 }
