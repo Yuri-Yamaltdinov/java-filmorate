@@ -28,7 +28,7 @@ class FilmDbStorageTest {
     @Order(1)
     void testCreateAndFindById() {
         Film filmTest = Film.builder()
-                .title("film")
+                .name("film")
                 .description("description")
                 .releaseDate(LocalDate.of(1998, 8, 8))
                 .duration(100)
@@ -60,7 +60,7 @@ class FilmDbStorageTest {
     void testUpdate() {
         Film filmTestUpdate = Film.builder()
                 .id(1)
-                .title("update film")
+                .name("update film")
                 .description("update description")
                 .releaseDate(LocalDate.of(1997, 7, 7))
                 .duration(90)
@@ -91,7 +91,7 @@ class FilmDbStorageTest {
     void testDelete() {
         Film filmTest = Film.builder()
                 .id(1)
-                .title("film")
+                .name("film")
                 .description("description")
                 .releaseDate(LocalDate.of(1998, 8, 8))
                 .duration(100)
@@ -109,7 +109,7 @@ class FilmDbStorageTest {
     @Order(3)
     void testFindAll() {
         Film filmTest2 = Film.builder()
-                .title("film test 2")
+                .name("film test 2")
                 .description("description test 2")
                 .releaseDate(LocalDate.of(2002, 2, 2))
                 .duration(180)
@@ -119,7 +119,7 @@ class FilmDbStorageTest {
                         .build())
                 .build();
         Film filmTest3 = Film.builder()
-                .title("film test 3")
+                .name("film test 3")
                 .description("description test 3")
                 .releaseDate(LocalDate.of(2003, 3, 3))
                 .duration(190)

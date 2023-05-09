@@ -18,7 +18,7 @@ import java.util.*;
 public class Film {
     private Integer id;
     @NotBlank
-    private String title;
+    private String name;
     @Size(max = 200)
     private String description;
     @NotNull
@@ -46,7 +46,7 @@ public class Film {
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
-        values.put("title", title);
+        values.put("title", name);
         values.put("description", description);
         values.put("release_date", releaseDate);
         values.put("duration", duration);

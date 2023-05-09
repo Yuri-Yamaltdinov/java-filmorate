@@ -44,17 +44,14 @@ public class UserService {
     }
 
     public User addFriend(Integer userId, Integer friendId) {
-        if (userId == friendId) {
+        if (userId.equals(friendId)) {
             throw new ValidationException("Friend id is equal to user id");
         }
         User user = findById(userId);
         User friend = findById(friendId);
         user.addFriend(friendId);
-        friend.addFriend(userId);
         updateUser(user);
         log.info("User updated: {}", user);
-        updateUser(friend);
-        log.info("Friend updated: {}", friend);
         return user;
     }
 
@@ -62,9 +59,7 @@ public class UserService {
         User user = findById(userId);
         User friend = findById(friendId);
         user.removeFriend(friendId);
-        friend.removeFriend(userId);
         updateUser(user);
-        updateUser(friend);
         return user;
     }
 
@@ -75,7 +70,7 @@ public class UserService {
             return Collections.emptySet();
         }
         Set<Integer> userFriendsId = user.getFriends();
-        Collection<User> friendsList = new ArrayList<>(Collections.emptyList());
+        Collection<User> friendsList = new ArrayList<>();
         for (Integer id : userFriendsId) {
             friendsList.add(userStorage.findById(id));
         }

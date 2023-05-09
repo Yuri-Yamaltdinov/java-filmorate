@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
-import ru.yandex.practicum.filmorate.exception.StorageException;
+import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.ArrayList;
@@ -14,14 +14,11 @@ import java.util.List;
 @Component
 @Slf4j
 public class GenreDaoImpl implements GenreDao {
-
     private final JdbcTemplate jdbcTemplate;
-
 
     public GenreDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
 
     @Override
     public Genre findById(int id) {
@@ -37,7 +34,7 @@ public class GenreDaoImpl implements GenreDao {
             return genre;
         } else {
             log.info("Genre with id {} not found.", id);
-            throw new StorageException(String.format("Genre with id %d not found.", id));
+            throw new GenreNotFoundException(String.format("Genre with id %d not found.", id));
         }
     }
 

@@ -8,20 +8,16 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component("UserDbStorage")
 @Primary
 @Slf4j
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -51,13 +47,15 @@ public class UserDbStorage implements UserStorage {
                     "email= ?, " +
                     "login = ?, " +
                     "name = ?, " +
-                    "birthday = ?;";
+                    "birthday = ? " +
+                    "where user_id = ?;";
 
             jdbcTemplate.update(sqlQuery,
                     user.getEmail(),
                     user.getLogin(),
                     user.getName(),
-                    user.getBirthday());
+                    user.getBirthday(),
+                    user.getId());
 
             log.info("User updated: {} {}", user.getId(), user.getName());
             return user;
@@ -82,7 +80,7 @@ public class UserDbStorage implements UserStorage {
         SqlRowSet filmsRows = jdbcTemplate.queryForRowSet("SELECT user_id FROM users");
 
         while (filmsRows.next()) {
-            users.add(this.findById(Integer.parseInt(filmsRows.getString("user_id"))));
+            users.add(this.findById(Integer.parseInt(Objects.requireNonNull(filmsRows.getString("user_id")))));
         }
 
         log.info("Найдено пользователей: {}.", users.size());
@@ -91,7 +89,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User findById(Integer userId) {
-        //checkUserId(userId);
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM users WHERE user_id = ?", userId);
         if (userRows.next()) {
             SqlRowSet friendsRows = jdbcTemplate.queryForRowSet(
@@ -105,13 +102,11 @@ public class UserDbStorage implements UserStorage {
             }
 
             User user = new User(
-                    //Integer.parseInt(userRows.getString("user_id")),
                     userRows.getInt("user_id"),
                     userRows.getString("email").trim(),
                     userRows.getString("login").trim(),
                     userRows.getString("name").trim(),
                     userRows.getDate("Birthday").toLocalDate(),
-                    //LocalDate.parse(userRows.getString("Birthday"), formatter),
                     friends);
 
             log.info("Found user: {} {}", user.getId(), user.getName());
@@ -133,21 +128,38 @@ public class UserDbStorage implements UserStorage {
         }
 
         for (Integer friendId : friends) {
-            sqlQuery = "INSERT INTO friendships (user_id, friend_id) " +
-                    "VALUES (?, ?);";
+            sqlQuery = "SELECT * FROM friendships " +
+                    "WHERE user_id = ? " +
+                    "AND friend_id = ?;";
+            SqlRowSet friendsRows = jdbcTemplate.queryForRowSet(sqlQuery, userId, friendId);
+            if (friendsRows.next()) {
+                boolean isConfirm = friendsRows.getBoolean("CONFIRMATION");
+                if (isConfirm) {
+                    log.info("Friendship with user {} already exists.", friendId);
+                    throw new ValidationException(String.format("Friendship with user %s already exists.", friendId));
+                } else {
+                    log.warn("Friendship request sent to user {}. No confirmation.", friendId);
+                }
+            }
+            friendsRows = jdbcTemplate.queryForRowSet(sqlQuery, friendId, userId);
+            if (friendsRows.next()) {
+                sqlQuery = "UPDATE friendships " +
+                        "SET confirmation = true " +
+                        "WHERE user_id = ? AND friend_id = ?;";
+                jdbcTemplate.update(sqlQuery, friendId, userId);
+                sqlQuery = "INSERT INTO friendships (user_id, friend_id, confirmation) " +
+                        "VALUES (?, ?, ?);";
+                jdbcTemplate.update(sqlQuery, userId, friendId, true);
 
+                log.info("Confirmed friendship request from user {} to user {}.", friendId, userId);
+                return friends;
+            }
+            sqlQuery = "MERGE INTO friendships (user_id, friend_id) " +
+                    "VALUES (?, ?);";
             jdbcTemplate.update(sqlQuery, userId, friendId);
+            log.info("User {} has send friendship request to user {}.", userId, friendId);
         }
         return friends;
     }
 
-    private void checkUserId(int userId) {
-        String sql = "SELECT user_id from users " +
-                "where user_id = ?";
-        SqlRowSet rsFilm = jdbcTemplate.queryForRowSet(sql,
-                userId);
-        if (!rsFilm.next()) {
-            throw new UserNotFoundException("User id not found");
-        }
-    }
 }

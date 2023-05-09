@@ -10,11 +10,9 @@ import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.StorageException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,7 +21,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final MpaDao mpaDao;
     private final GenreDao genreDao;
 
@@ -54,7 +51,7 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setGenres(updateGenres(genres, film.getId()));
 
-        log.info("Film created: {} {}.", film.getId(), film.getTitle());
+        log.info("Film created: {} {}.", film.getId(), film.getName());
         return film;
     }
 
@@ -74,7 +71,7 @@ public class FilmDbStorage implements FilmStorage {
                     "WHERE film_id = ?;";
 
             jdbcTemplate.update(sqlQuery,
-                    film.getTitle(),
+                    film.getName(),
                     film.getDescription(),
                     film.getReleaseDate(),
                     film.getDuration(),
@@ -87,12 +84,12 @@ public class FilmDbStorage implements FilmStorage {
             Set<Integer> likes = film.getLikes();
             film.setLikes(updateLikes(likes, film.getId()));
 
-            log.info("Film updated: {} {}", film.getId(), film.getTitle());
+            log.info("Film updated: {} {}", film.getId(), film.getName());
 
             return film;
         } else {
             log.warn("Film with id {} not found.", film.getId());
-            throw new StorageException(String.format("Film with id %d not found.", film.getId()));
+            throw new FilmNotFoundException(String.format("Film with id %d not found.", film.getId()));
         }
 
     }
@@ -102,7 +99,7 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "DELETE FROM films " +
                 "WHERE film_id = ?;";
         jdbcTemplate.update(sqlQuery, film.getId());
-        log.info("Film deleted: {} {}", film.getId(), film.getTitle());
+        log.info("Film deleted: {} {}", film.getId(), film.getName());
     }
 
     @Override
@@ -152,7 +149,7 @@ public class FilmDbStorage implements FilmStorage {
                     genres,
                     mpaDao.findById(filmRows.getInt("mpa_rating_id")));
 
-            log.info("Film found: {} {}", film.getId(), film.getTitle());
+            log.info("Film found: {} {}", film.getId(), film.getName());
             return film;
         } else {
             log.warn("Film with id {} not found.", filmId);
@@ -201,13 +198,4 @@ public class FilmDbStorage implements FilmStorage {
         return likes;
     }
 
-    private void checkFilmId(int filmId) {
-        String sql = "SELECT film_id from films " +
-                "where film_id = ?";
-        SqlRowSet rsFilm = jdbcTemplate.queryForRowSet(sql,
-                filmId);
-        if (!rsFilm.next()) {
-            throw new FilmNotFoundException("Film id not found");
-        }
-    }
 }
