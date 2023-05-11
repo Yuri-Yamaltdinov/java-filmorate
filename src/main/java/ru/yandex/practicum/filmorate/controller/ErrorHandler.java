@@ -23,37 +23,11 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundExceptions(final UserNotFoundException e) {
-        log.error("404 — Пользователь не найден: UserNotFoundException");
+    public ErrorResponse handleNotFoundExceptions(final EntityNotFoundException e) {
+        log.error("404 — Cущность " + e.getEntityName() + " не найдена: EntityNotFoundException");
         return new ErrorResponse(
-                String.format(e.getMessage())
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundExceptions(final FilmNotFoundException e) {
-        log.error("404 — Фильм не найден: FilmNotFoundException");
-        return new ErrorResponse(
-                String.format(e.getMessage())
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundExceptions(final GenreNotFoundException e) {
-        log.error("404 — Жанр не найден: GenreNotFoundException");
-        return new ErrorResponse(
-                String.format(e.getMessage())
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundExceptions(final MpaNotFoundException e) {
-        log.error("404 — Рейтинг MPA не найден: MpaNotFoundException");
-        return new ErrorResponse(
-                String.format(e.getMessage())
+                String.format("Не найдена сущность класса \"%s\".", e.getEntityName() + "\n" +
+                e.getMessage())
         );
     }
 

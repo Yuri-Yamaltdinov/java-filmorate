@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
-import ru.yandex.practicum.filmorate.exception.MpaNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.ArrayList;
@@ -13,12 +14,9 @@ import java.util.List;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class MpaDaoImpl implements MpaDao {
     private final JdbcTemplate jdbcTemplate;
-
-    public MpaDaoImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Mpa findById(int id) {
@@ -34,7 +32,7 @@ public class MpaDaoImpl implements MpaDao {
             return mpa;
         } else {
             log.info("Rating with id {} not found.", id);
-            throw new MpaNotFoundException(String.format("Rating with id %d not found.", id));
+            throw new EntityNotFoundException(String.format("Rating with id %d not found.", id), "Mpa");
         }
     }
 

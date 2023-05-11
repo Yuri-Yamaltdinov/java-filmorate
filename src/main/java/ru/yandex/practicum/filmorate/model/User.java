@@ -10,9 +10,7 @@ import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Data
 @Builder
@@ -28,19 +26,6 @@ public class User {
     private String name;
     @PastOrPresent
     private LocalDate birthday;
-    @Builder.Default
-    private Set<Integer> friends = new HashSet<>();
-
-    public void addFriend(Integer friendId) {
-        if (friends == null) {
-            friends = new HashSet<>();
-        }
-        friends.add(friendId);
-    }
-
-    public void removeFriend(Integer friendId) {
-        friends.remove(friendId);
-    }
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

@@ -9,8 +9,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -24,52 +22,22 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
-    public void addFilm(Film film) {
+    public void create(Film film) {
         checkReleaseDate(film);
         filmStorage.create(film);
     }
 
-    public void updateFilm(Film film) {
+    public void update(Film film) {
         checkReleaseDate(film);
         filmStorage.update(film);
     }
 
-    public Collection<Film> getFilms() {
+    public Collection<Film> findAll() {
         return filmStorage.findAll();
     }
 
-    public Film getFilm(Integer id) {
+    public Film findById(Integer id) {
         return filmStorage.findById(id);
-    }
-
-    public Film addLike(Integer filmId, Integer userId) {
-        Film film = getFilm(filmId);
-        film.addLike(userId);
-        updateFilm(film);
-        return film;
-    }
-
-    public Film removeLike(Integer filmId, Integer userId) {
-        Film film = getFilm(filmId);
-        film.removeLike(userId);
-        updateFilm(film);
-        return film;
-    }
-
-    public Collection<Film> getTopFilms(Integer count) {
-        Collection<Film> filmsCollection = getFilms();
-        if (count > filmsCollection.size()) {
-            count = filmsCollection.size();
-        }
-        for (Film film : filmsCollection) {
-            if (film.getLikes() == null) {
-                film.setLikes(new HashSet<>());
-            }
-        }
-        return filmsCollection.stream()
-                .sorted((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
     }
 
     private void checkReleaseDate(Film film) {

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -101,7 +101,7 @@ class FilmDbStorageTest {
                         .build())
                 .build();
         filmStorage.delete(filmTest);
-        FilmNotFoundException ex = Assertions.assertThrows(FilmNotFoundException.class, () -> filmStorage.findById(1));
+        EntityNotFoundException ex = Assertions.assertThrows(EntityNotFoundException.class, () -> filmStorage.findById(1));
         assertEquals("Film id not found in storage", ex.getMessage());
     }
 

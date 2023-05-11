@@ -5,7 +5,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -74,7 +74,7 @@ class UserDbStorageTest {
                 .login("user")
                 .build();
         userStorage.delete(userTest);
-        UserNotFoundException ex = Assertions.assertThrows(UserNotFoundException.class, () -> userStorage.findById(1));
+        EntityNotFoundException ex = Assertions.assertThrows(EntityNotFoundException.class, () -> userStorage.findById(1));
         assertEquals("User id not found in storage", ex.getMessage());
     }
 

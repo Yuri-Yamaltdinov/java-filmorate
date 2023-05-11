@@ -1,14 +1,16 @@
 --наполнение таблицы жанров
-INSERT INTO genres (genre_name) VALUES('Комедия');
-INSERT INTO genres (genre_name) VALUES('Драма');
-INSERT INTO genres (genre_name) VALUES('Мультфильм');
-INSERT INTO genres (genre_name) VALUES('Триллер');
-INSERT INTO genres (genre_name) VALUES('Документальный');
-INSERT INTO genres (genre_name) VALUES('Боевик');
+MERGE INTO genres (genre_id, genre_name)
+VALUES (1, 'Комедия'),
+(2, 'Драма'),
+(3, 'Мультфильм'),
+(4, 'Триллер'),
+(5, 'Документальный'),
+(6, 'Боевик');
 
 --наполнение таблицы рейтингов
-INSERT INTO mpa_ratings (mpa_rating) VALUES('G');
-INSERT INTO mpa_ratings (mpa_rating) VALUES('PG');
-INSERT INTO mpa_ratings (mpa_rating) VALUES('PG-13');
-INSERT INTO mpa_ratings (mpa_rating) VALUES('R');
-INSERT INTO mpa_ratings (mpa_rating) VALUES('NC-17');
+MERGE INTO mpa_ratings (mpa_id, mpa_rating)
+VALUES (1, 'G'),
+(2, 'PG'),
+(3, 'PG-13'),
+(4, 'R'),
+(5, 'NC-17');

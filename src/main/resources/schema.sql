@@ -42,7 +42,7 @@ CREATE TABLE liked_films (
 --таблица пользователей
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users (
-    user_id int AUTO_INCREMENT PRIMARY KEY ,
+    user_id int AUTO_INCREMENT PRIMARY KEY,
     email character(100),
     login character(100),
     name character(100),
