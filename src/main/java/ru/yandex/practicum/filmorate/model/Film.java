@@ -1,18 +1,18 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Data
+@AllArgsConstructor
 @Builder
 public class Film {
     private Integer id;
@@ -20,24 +20,21 @@ public class Film {
     private String name;
     @Size(max = 200)
     private String description;
-    @NotNull
+    @PastOrPresent
     private LocalDate releaseDate;
     @Positive
-    private long duration;
-    @Builder.Default
-    private Set<Integer> likes = new HashSet<>();
+    private int duration;
+    private List<Genre> genres = new ArrayList<>();
+    @NotNull
+    private Mpa mpa;
 
-    public void addLike(Integer userId) {
-        if (likes == null) {
-            likes = new HashSet<>();
-        }
-        likes.add(userId);
-    }
-
-    public void removeLike(Integer userId) {
-        if (likes.isEmpty()) {
-            throw new UserNotFoundException("Film's likes list is empty");
-        }
-        likes.remove(userId);
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("title", name);
+        values.put("description", description);
+        values.put("release_date", releaseDate);
+        values.put("duration", duration);
+        values.put("mpa_rating_id", mpa.getId());
+        return values;
     }
 }

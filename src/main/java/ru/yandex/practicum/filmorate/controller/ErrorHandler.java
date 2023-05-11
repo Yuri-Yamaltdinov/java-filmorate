@@ -5,9 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 @RestControllerAdvice
@@ -25,19 +23,11 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundExceptions(final UserNotFoundException e) {
-        log.error("404 — Пользователь не найден: UserNotFoundException");
+    public ErrorResponse handleNotFoundExceptions(final EntityNotFoundException e) {
+        log.error("404 — Cущность " + e.getEntityName() + " не найдена: EntityNotFoundException");
         return new ErrorResponse(
-                String.format(e.getMessage())
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundExceptions(final FilmNotFoundException e) {
-        log.error("404 — Фильм не найден: FilmNotFoundException");
-        return new ErrorResponse(
-                String.format(e.getMessage())
+                String.format("Не найдена сущность класса \"%s\".", e.getEntityName() + "\n" +
+                e.getMessage())
         );
     }
 
@@ -49,4 +39,5 @@ public class ErrorHandler {
                 String.format(e.getMessage())
         );
     }
+
 }
